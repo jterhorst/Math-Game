@@ -8,59 +8,143 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+struct QuestionView: View {
+    var question: Question
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+        VStack {
+            Text("\(question.lhs)")
+                .font(Font.system(size: 84))
+                .foregroundStyle(.primary)
+            Text("x \(question.rhs)")
+                .font(Font.system(size: 84))
+                .foregroundStyle(.primary)
         }
     }
+}
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+struct NameEntryView: View {
+    @FocusState private var textFieldFocused: Bool
+    @State var userName: String = ""
+    @State var nameEntryComplete: ((String) -> Void)
+    
+    init(nameEntryComplete: @escaping ((String) -> Void)) {
+        self.nameEntryComplete = nameEntryComplete
+        textFieldFocused = true
+    }
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            TextField("Enter your name", text: $userName)
+                .multilineTextAlignment(.center)
+                .font(Font.system(.title))
+                .focused($textFieldFocused)
+                .onSubmit {
+                    submit(userName)
+                }
+            Spacer()
+            Button(action: {
+                submit(userName)
+            }, label: {
+                Text("Send")
+            })
+            .disabled(userName.isEmpty)
+            .font(Font.system(.largeTitle))
         }
     }
+    
+    func submit(_ result: String) {
+        nameEntryComplete(userName)
+    }
+}
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+struct PlayerView: View {
+    @State private var answer: String = ""
+    @FocusState private var textFieldFocused: Bool
+    @ObservedObject private var vm: MathGameClientViewModel
+    
+    init(username: String) {
+        self.vm = MathGameClientViewModel(userName: username)
+        self.textFieldFocused = true
+    }
+    
+    var body: some View {
+        VStack {
+            Text("Score: \(vm.currentPlayer?.score ?? 0)")
+            Spacer()
+            VStack {
+                if let question = vm.currentQuestion {
+                    QuestionView(question: question)
+                }
+                TextField("?", text: $answer)
+                    .focused($textFieldFocused)
+                    .multilineTextAlignment(.center)
+                    .font(Font.system(size: 84))
+                    .keyboardType(.numberPad)
+                    .onSubmit {
+                        submit(answer)
+                    }
+            }
+            Spacer()
+            Button(action: {
+                submit(answer)
+            }, label: {
+                Text("Send")
+            })
+            .disabled(answer.isEmpty)
+            .font(Font.system(.largeTitle))
+        }
+    }
+    
+    func submit(_ result: String) {
+        vm.sendMessage(result)
+        if Int(result) == vm.currentQuestion?.correctAnswer {
+            answer = ""
+            textFieldFocused = true
+        }
+    }
+}
+
+struct HostTVView: View {
+    @ObservedObject private var vm = MathGameClientViewModel()
+    var body: some View {
+        VStack {
+            Spacer()
+            if let question = vm.currentQuestion {
+                QuestionView(question: question)
+            }
+            Spacer()
+            HStack {
+                Spacer()
+                ForEach(vm.players, id: \.name) { player in
+                    VStack {
+                        Text(player.name)
+                        Text("\(player.score)")
+                    }
+                    Spacer()
+                }
             }
         }
     }
 }
 
+struct ContentView: View {
+    @State private var userName: String?
+    var body: some View {
+        #if os(tvOS)
+        HostTVView()
+        #else
+        if let userName {
+            PlayerView(username: userName)
+        } else {
+            NameEntryView(nameEntryComplete: { name in
+                userName = name
+            })
+        }
+        #endif
+    }
+}
+
 #Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    QuestionView(question: Question())
 }

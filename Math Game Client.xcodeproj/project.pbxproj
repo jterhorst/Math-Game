@@ -24,9 +24,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5847B5002D079D330013BB0D /* Math Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Math Game.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5847B5132D079D350013BB0D /* Math GameTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Math GameTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5847B51D2D079D350013BB0D /* Math GameUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Math GameUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5847B5002D079D330013BB0D /* Math Game Client.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Math Game Client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5847B5132D079D350013BB0D /* Math Game ClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Math Game ClientTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5847B51D2D079D350013BB0D /* Math Game ClientUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Math Game ClientUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -85,9 +85,9 @@
 		5847B5012D079D330013BB0D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5847B5002D079D330013BB0D /* Math Game.app */,
-				5847B5132D079D350013BB0D /* Math GameTests.xctest */,
-				5847B51D2D079D350013BB0D /* Math GameUITests.xctest */,
+				5847B5002D079D330013BB0D /* Math Game Client.app */,
+				5847B5132D079D350013BB0D /* Math Game ClientTests.xctest */,
+				5847B51D2D079D350013BB0D /* Math Game ClientUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5847B4FF2D079D330013BB0D /* Math Game */ = {
+		5847B4FF2D079D330013BB0D /* Math Game Client */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5847B5272D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game" */;
+			buildConfigurationList = 5847B5272D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game Client" */;
 			buildPhases = (
 				5847B4FC2D079D330013BB0D /* Sources */,
 				5847B4FD2D079D330013BB0D /* Frameworks */,
@@ -110,16 +110,16 @@
 			fileSystemSynchronizedGroups = (
 				5847B5022D079D330013BB0D /* Math Game */,
 			);
-			name = "Math Game";
+			name = "Math Game Client";
 			packageProductDependencies = (
 			);
 			productName = "Math Game";
-			productReference = 5847B5002D079D330013BB0D /* Math Game.app */;
+			productReference = 5847B5002D079D330013BB0D /* Math Game Client.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5847B5122D079D350013BB0D /* Math GameTests */ = {
+		5847B5122D079D350013BB0D /* Math Game ClientTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5847B52A2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math GameTests" */;
+			buildConfigurationList = 5847B52A2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game ClientTests" */;
 			buildPhases = (
 				5847B50F2D079D350013BB0D /* Sources */,
 				5847B5102D079D350013BB0D /* Frameworks */,
@@ -133,16 +133,16 @@
 			fileSystemSynchronizedGroups = (
 				5847B5162D079D350013BB0D /* Math GameTests */,
 			);
-			name = "Math GameTests";
+			name = "Math Game ClientTests";
 			packageProductDependencies = (
 			);
 			productName = "Math GameTests";
-			productReference = 5847B5132D079D350013BB0D /* Math GameTests.xctest */;
+			productReference = 5847B5132D079D350013BB0D /* Math Game ClientTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		5847B51C2D079D350013BB0D /* Math GameUITests */ = {
+		5847B51C2D079D350013BB0D /* Math Game ClientUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5847B52D2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math GameUITests" */;
+			buildConfigurationList = 5847B52D2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game ClientUITests" */;
 			buildPhases = (
 				5847B5192D079D350013BB0D /* Sources */,
 				5847B51A2D079D350013BB0D /* Frameworks */,
@@ -156,11 +156,11 @@
 			fileSystemSynchronizedGroups = (
 				5847B5202D079D350013BB0D /* Math GameUITests */,
 			);
-			name = "Math GameUITests";
+			name = "Math Game ClientUITests";
 			packageProductDependencies = (
 			);
 			productName = "Math GameUITests";
-			productReference = 5847B51D2D079D350013BB0D /* Math GameUITests.xctest */;
+			productReference = 5847B51D2D079D350013BB0D /* Math Game ClientUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5847B4FB2D079D330013BB0D /* Build configuration list for PBXProject "Math Game" */;
+			buildConfigurationList = 5847B4FB2D079D330013BB0D /* Build configuration list for PBXProject "Math Game Client" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5847B4FF2D079D330013BB0D /* Math Game */,
-				5847B5122D079D350013BB0D /* Math GameTests */,
-				5847B51C2D079D350013BB0D /* Math GameUITests */,
+				5847B4FF2D079D330013BB0D /* Math Game Client */,
+				5847B5122D079D350013BB0D /* Math Game ClientTests */,
+				5847B51C2D079D350013BB0D /* Math Game ClientUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		5847B5152D079D350013BB0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5847B4FF2D079D330013BB0D /* Math Game */;
+			target = 5847B4FF2D079D330013BB0D /* Math Game Client */;
 			targetProxy = 5847B5142D079D350013BB0D /* PBXContainerItemProxy */;
 		};
 		5847B51F2D079D350013BB0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5847B4FF2D079D330013BB0D /* Math Game */;
+			target = 5847B4FF2D079D330013BB0D /* Math Game Client */;
 			targetProxy = 5847B51E2D079D350013BB0D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -414,10 +414,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jterhorst.Math-Game";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2,3,7";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Debug;
@@ -453,10 +454,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jterhorst.Math-Game";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2,3,7";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Release;
@@ -479,7 +481,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Math Game.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Math Game";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Math Game Client.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Math Game Client";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Debug;
@@ -502,7 +504,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Math Game.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Math Game";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Math Game Client.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Math Game Client";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Release;
@@ -554,7 +556,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5847B4FB2D079D330013BB0D /* Build configuration list for PBXProject "Math Game" */ = {
+		5847B4FB2D079D330013BB0D /* Build configuration list for PBXProject "Math Game Client" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5847B5252D079D350013BB0D /* Debug */,
@@ -563,7 +565,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5847B5272D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game" */ = {
+		5847B5272D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game Client" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5847B5282D079D350013BB0D /* Debug */,
@@ -572,7 +574,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5847B52A2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math GameTests" */ = {
+		5847B52A2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game ClientTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5847B52B2D079D350013BB0D /* Debug */,
@@ -581,7 +583,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5847B52D2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math GameUITests" */ = {
+		5847B52D2D079D350013BB0D /* Build configuration list for PBXNativeTarget "Math Game ClientUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5847B52E2D079D350013BB0D /* Debug */,
