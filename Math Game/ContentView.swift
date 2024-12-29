@@ -63,9 +63,10 @@ struct PlayerView: View {
     @FocusState private var textFieldFocused: Bool
     @ObservedObject private var vm: MathGameClientViewModel
     
-    init(username: String) {
-        self.vm = MathGameClientViewModel(userName: username)
+    init(username: String, didDisconnect: @escaping (() -> Void)) {
+        self.vm = MathGameClientViewModel(userName: username, didDisconnect: didDisconnect)
         self.textFieldFocused = true
+        
     }
     
     var body: some View {
@@ -79,10 +80,14 @@ struct PlayerView: View {
                 TextField("?", text: $answer)
                     .focused($textFieldFocused)
                     .multilineTextAlignment(.center)
+                    .foregroundStyle($vm.textEntryColor.wrappedValue)
                     .font(Font.system(size: 84))
                     .keyboardType(.numberPad)
                     .onSubmit {
                         submit(answer)
+                    }
+                    .onChange(of: answer) {
+                        vm.answer = answer
                     }
             }
             Spacer()
@@ -106,7 +111,7 @@ struct PlayerView: View {
 }
 
 struct HostTVView: View {
-    @ObservedObject private var vm = MathGameClientViewModel()
+    @ObservedObject private var vm = MathGameClientViewModel(didDisconnect: {})
     var body: some View {
         VStack {
             Spacer()
@@ -135,7 +140,9 @@ struct ContentView: View {
         HostTVView()
         #else
         if let userName {
-            PlayerView(username: userName)
+            PlayerView(username: userName, didDisconnect: {
+                self.userName = nil
+            })
         } else {
             NameEntryView(nameEntryComplete: { name in
                 userName = name

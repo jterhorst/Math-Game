@@ -51,13 +51,22 @@ class MathGameClientViewModel: ObservableObject {
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
     @FocusState var focused: Bool
+    @Published var textEntryColor: Color = .primary
+    var answer: String = "" {
+        didSet {
+            textEntryColor = .primary
+        }
+    }
+    
+    private let didDisconnect: (() -> Void)
     
     private let devMode = false
     
     private var webSocketTask: URLSessionWebSocketTask?
     
-    init(userName: String? = nil) {
+    init(userName: String? = nil, didDisconnect: @escaping (() -> Void)) {
         self.userName = userName
+        self.didDisconnect = didDisconnect
         self.connect()
     }
     
@@ -122,12 +131,17 @@ class MathGameClientViewModel: ObservableObject {
             } else {
                 self.isActive = false
                 self.players = []
+                self.didDisconnect()
             }
         }
     }
     
     func sendMessage(_ message: String) {
         guard let result = Int(message) else { return }
+        guard result == self.currentQuestion?.correctAnswer else {
+            textEntryColor = .red
+            return
+        }
         guard let package = try? JSONEncoder().encode(["type": EventTypes.answer.rawValue, "data": message]) else { return }
         guard let stringResult = String(data: package, encoding: .utf8) else { return }
         webSocketTask?.send(.string(stringResult)) { error in
