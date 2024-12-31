@@ -8,20 +8,6 @@
 import SwiftUI
 import SwiftData
 
-struct QuestionView: View {
-    var question: Question
-    var body: some View {
-        VStack {
-            Text("\(question.lhs)")
-                .font(Font.system(size: 84))
-                .foregroundStyle(.primary)
-            Text("x \(question.rhs)")
-                .font(Font.system(size: 84))
-                .foregroundStyle(.primary)
-        }
-    }
-}
-
 struct NameEntryView: View {
     @FocusState private var textFieldFocused: Bool
     @State var userName: String = ""
@@ -58,8 +44,27 @@ struct NameEntryView: View {
     }
 }
 
+#Preview("Name entry") {
+    NameEntryView(nameEntryComplete: { name in
+        
+    })
+}
+
+private struct Shake: GeometryEffect {
+    var amount: CGFloat = 10
+    var shakesPerUnit = 3
+    var animatableData: CGFloat
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        ProjectionTransform(CGAffineTransform(translationX:
+            amount * sin(animatableData * .pi * CGFloat(shakesPerUnit)),
+            y: 0))
+    }
+}
+
 struct PlayerView: View {
     @State private var answer: String = ""
+    @State private var attempts: Int = 0
     @FocusState private var textFieldFocused: Bool
     @ObservedObject private var vm: MathGameClientViewModel
     
@@ -73,22 +78,26 @@ struct PlayerView: View {
         VStack {
             Text("Score: \(vm.currentPlayer?.score ?? 0)")
             Spacer()
-            VStack {
+            HStack {
+                Spacer()
                 if let question = vm.currentQuestion {
-                    QuestionView(question: question)
+                    QuestionView(question: question, answerView: {
+                        TextField("?", text: $answer)
+                            .focused($textFieldFocused)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.primary)
+                            .font(Font.system(size: 84))
+                            .keyboardType(.numberPad)
+                            .onSubmit {
+                                submit(answer)
+                            }
+                            .onChange(of: answer) {
+                                vm.answer = answer
+                            }
+                    })
+                    .modifier(Shake(animatableData: CGFloat(attempts)))
                 }
-                TextField("?", text: $answer)
-                    .focused($textFieldFocused)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle($vm.textEntryColor.wrappedValue)
-                    .font(Font.system(size: 84))
-                    .keyboardType(.numberPad)
-                    .onSubmit {
-                        submit(answer)
-                    }
-                    .onChange(of: answer) {
-                        vm.answer = answer
-                    }
+                Spacer()
             }
             Spacer()
             Button(action: {
@@ -102,12 +111,25 @@ struct PlayerView: View {
     }
     
     func submit(_ result: String) {
-        vm.sendMessage(result)
+        vm.sendMessage(result, incorrectAnswer: {
+            withAnimation(.default) {
+                self.attempts += 1
+            } completion: {
+                answer = ""
+                textFieldFocused = true
+            }
+        })
         if Int(result) == vm.currentQuestion?.correctAnswer {
             answer = ""
             textFieldFocused = true
         }
     }
+}
+
+#Preview("Player") {
+    PlayerView(username: "Bob", didDisconnect: {
+        
+    })
 }
 
 struct HostTVView: View {
@@ -116,7 +138,9 @@ struct HostTVView: View {
         VStack {
             Spacer()
             if let question = vm.currentQuestion {
-                QuestionView(question: question)
+                QuestionView(question: question, answerView: {
+                    CardAnswerText("??")
+                })
             }
             Spacer()
             HStack {
@@ -131,6 +155,10 @@ struct HostTVView: View {
             }
         }
     }
+}
+
+#Preview("Host") {
+    HostTVView()
 }
 
 struct ContentView: View {
@@ -150,8 +178,4 @@ struct ContentView: View {
         }
         #endif
     }
-}
-
-#Preview {
-    QuestionView(question: Question())
 }

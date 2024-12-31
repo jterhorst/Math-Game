@@ -14,8 +14,8 @@
             filePath = "Math Game/MathGameClientViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
             landmarkName = "receiveMessage()"
             landmarkType = "7">
          </BreakpointContent>

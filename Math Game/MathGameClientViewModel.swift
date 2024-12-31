@@ -51,12 +51,7 @@ class MathGameClientViewModel: ObservableObject {
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
     @FocusState var focused: Bool
-    @Published var textEntryColor: Color = .primary
-    var answer: String = "" {
-        didSet {
-            textEntryColor = .primary
-        }
-    }
+    var answer: String = ""
     
     private let didDisconnect: (() -> Void)
     
@@ -136,10 +131,10 @@ class MathGameClientViewModel: ObservableObject {
         }
     }
     
-    func sendMessage(_ message: String) {
+    func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
         guard let result = Int(message) else { return }
         guard result == self.currentQuestion?.correctAnswer else {
-            textEntryColor = .red
+            incorrectAnswer()
             return
         }
         guard let package = try? JSONEncoder().encode(["type": EventTypes.answer.rawValue, "data": message]) else { return }
