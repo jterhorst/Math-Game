@@ -48,6 +48,7 @@ class MathGameClientViewModel: ObservableObject {
     let userName: String?
     @Published var isActive = false
     @Published var currentQuestion: Question?
+    @Published var oldQuestion: Question?
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
     @FocusState var focused: Bool

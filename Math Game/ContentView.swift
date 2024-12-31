@@ -108,6 +108,10 @@ struct PlayerView: View {
             .disabled(answer.isEmpty)
             .font(Font.system(.largeTitle))
         }
+        .background {
+            Rectangle()
+                .fill(.background)
+        }
     }
     
     func submit(_ result: String) {

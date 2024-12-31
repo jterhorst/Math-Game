@@ -42,34 +42,47 @@ private struct CardView<ChildView: View, AnswerView: View>: View {
     @ViewBuilder var answer: AnswerView
     
     var body: some View {
-        VStack {
-            content
-            Rectangle()
-                .fill(.black)
-                .frame(width: 180, height: 5)
-            answer
-        }
-        .padding(30)
-        .background {
-            RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                .fill(.white)
-                .shadow(radius: 5.0)
-        }
+//        GeometryReader { reader in
+            VStack {
+                content
+                Rectangle()
+                    .fill(.black)
+                    .frame(width: 180, height: 5)
+                answer
+            }
+            .padding(30)
+//            .frame(maxWidth: reader.size.width * 0.5)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                    .fill(.white)
+                    .shadow(radius: 5.0)
+            }
+//        }
     }
 }
 
-struct QuestionView<AnswerView: View>: View {
+struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
     var question: Question
-    var answerView: () -> AnswerView
-    var incomingQuestion: Question?
-    var incomingAnswerView: (() -> AnswerView)?
+    var answerView: AnswerView
+    var oldQuestion: Question?
+    var oldAnswerView: OptionalOldAnswerView?
     @State var rotation = 0.0
     @State var dropPosition = 0.0
     @State var opacity = 1.0
     
+    init(question: Question, answerView: () -> AnswerView, oldQuestion: Question? = nil, oldAnswerView: (() -> OptionalOldAnswerView)? = nil, rotation: Double = 0.0, dropPosition: Double = 0.0, opacity: Double = 1.0) {
+        self.question = question
+        self.answerView = answerView()
+        self.oldQuestion = oldQuestion
+        self.oldAnswerView = oldAnswerView?()
+        self.rotation = rotation
+        self.dropPosition = dropPosition
+        self.opacity = opacity
+    }
+    
     @ViewBuilder
-    var placeholderAnswer: AnswerView {
-        Text("??") as! AnswerView
+    var placeholderAnswer: some View {
+        Text("??")
     }
     
     var body: some View {
@@ -79,14 +92,14 @@ struct QuestionView<AnswerView: View>: View {
                     CardTextLine("\(question.lhs)")
                     CardTextLine("x \(question.rhs)")
                 }
-            }, answer: { answerView() })
-            if let incomingQuestion {
+            }, answer: { answerView })
+            if let q = oldQuestion, let a = oldAnswerView {
                 CardView(content: {
                     VStack {
-                        CardTextLine("\(incomingQuestion.lhs)")
-                        CardTextLine("x \(incomingQuestion.rhs)")
+                        CardTextLine("\(q.lhs)")
+                        CardTextLine("x \(q.rhs)")
                     }
-                }, answer: incomingAnswerView ?? { placeholderAnswer })
+                }, answer: { a })
                 .opacity(opacity)
                 .rotationEffect(Angle(degrees: rotation))
                 .offset(CGSize(width: 0, height: dropPosition))
@@ -102,10 +115,24 @@ struct QuestionView<AnswerView: View>: View {
     }
 }
 
+extension QuestionView where OptionalOldAnswerView == EmptyView {
+    init(question: Question, answerView: () -> AnswerView, rotation: Double = 0.0, dropPosition: Double = 0.0, opacity: Double = 1.0) {
+        self.question = question
+        self.answerView = answerView()
+        self.oldQuestion = nil
+        self.oldAnswerView = nil
+        self.rotation = rotation
+        self.dropPosition = dropPosition
+        self.opacity = opacity
+    }
+}
+
 #Preview {
+    @Previewable @State var answer: String = ""
+    @FocusState var textFieldFocused: Bool
     QuestionView(question: Question(), answerView: {
         CardAnswerText("??")
-    }, incomingQuestion: Question(), incomingAnswerView: {
-        CardAnswerText("??")
+    }, oldQuestion: Question(), oldAnswerView: {
+        TextField("?", text: $answer)
     })
 }
