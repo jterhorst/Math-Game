@@ -42,22 +42,21 @@ private struct CardView<ChildView: View, AnswerView: View>: View {
     @ViewBuilder var answer: AnswerView
     
     var body: some View {
-//        GeometryReader { reader in
-            VStack {
-                content
-                Rectangle()
-                    .fill(.black)
-                    .frame(width: 180, height: 5)
-                answer
-            }
-            .padding(30)
-//            .frame(maxWidth: reader.size.width * 0.5)
-            .background {
-                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                    .fill(.white)
-                    .shadow(radius: 5.0)
-            }
-//        }
+        VStack {
+            content
+                .frame(maxWidth: 180)
+            Rectangle()
+                .fill(.black)
+                .frame(width: 180, height: 5)
+            answer
+                .frame(maxWidth: 180, minHeight: 80)
+        }
+        .padding(30)
+        .background {
+            RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                .fill(.white)
+                .shadow(radius: 5.0)
+        }
     }
 }
 
@@ -93,13 +92,13 @@ struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
                     CardTextLine("x \(question.rhs)")
                 }
             }, answer: { answerView })
-            if let q = oldQuestion, let a = oldAnswerView {
+            if let q = oldQuestion {
                 CardView(content: {
                     VStack {
                         CardTextLine("\(q.lhs)")
                         CardTextLine("x \(q.rhs)")
                     }
-                }, answer: { a })
+                }, answer: { oldAnswerView })
                 .opacity(opacity)
                 .rotationEffect(Angle(degrees: rotation))
                 .offset(CGSize(width: 0, height: dropPosition))
@@ -127,12 +126,38 @@ extension QuestionView where OptionalOldAnswerView == EmptyView {
     }
 }
 
-#Preview {
+#Preview("With old question") {
     @Previewable @State var answer: String = ""
     @FocusState var textFieldFocused: Bool
     QuestionView(question: Question(), answerView: {
-        CardAnswerText("??")
-    }, oldQuestion: Question(), oldAnswerView: {
+//        CardAnswerText("??")
         TextField("?", text: $answer)
+            .focused($textFieldFocused)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.primary)
+            .font(Font.system(size: 84))
+            .keyboardType(.numberPad)
+    }, oldQuestion: Question(), oldAnswerView: {
+        CardAnswerText("??")
+//        TextField("?", text: $answer)
+//            .focused($textFieldFocused)
+//            .multilineTextAlignment(.center)
+//            .foregroundStyle(.primary)
+//            .font(Font.system(size: 84))
+//            .keyboardType(.numberPad)
+    })
+}
+
+#Preview("Without old question") {
+    @Previewable @State var answer: String = ""
+    @FocusState var textFieldFocused: Bool
+    QuestionView(question: Question(), answerView: {
+        TextField("?", text: $answer)
+            .focused($textFieldFocused)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.primary)
+            .font(Font.system(size: 84))
+            .keyboardType(.numberPad)
+//        CardAnswerText("??")
     })
 }

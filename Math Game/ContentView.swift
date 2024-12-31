@@ -75,43 +75,35 @@ struct PlayerView: View {
     }
     
     var body: some View {
-        VStack {
-            Text("Score: \(vm.currentPlayer?.score ?? 0)")
-            Spacer()
-            HStack {
-                Spacer()
-                if let question = vm.currentQuestion {
-                    QuestionView(question: question, answerView: {
-                        TextField("?", text: $answer)
-                            .focused($textFieldFocused)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.primary)
-                            .font(Font.system(size: 84))
-                            .keyboardType(.numberPad)
-                            .onSubmit {
-                                submit(answer)
-                            }
-                            .onChange(of: answer) {
-                                vm.answer = answer
-                            }
-                    })
-                    .modifier(Shake(animatableData: CGFloat(attempts)))
-                }
-                Spacer()
+//        VStack {
+//            Text("Score: \(vm.currentPlayer?.score ?? 0)")
+//            Spacer()
+            if let question = vm.currentQuestion {
+                QuestionView(question: question, answerView: {
+                    TextField("?", text: $answer)
+                        .focused($textFieldFocused)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.primary)
+                        .font(Font.system(size: 84))
+                        .keyboardType(.numberPad)
+                        .onSubmit {
+                            submit(answer)
+                        }
+                        .onChange(of: answer) {
+                            vm.answer = answer
+                        }
+                })
+                .modifier(Shake(animatableData: CGFloat(attempts)))
             }
-            Spacer()
-            Button(action: {
-                submit(answer)
-            }, label: {
-                Text("Send")
-            })
-            .disabled(answer.isEmpty)
-            .font(Font.system(.largeTitle))
-        }
-        .background {
-            Rectangle()
-                .fill(.background)
-        }
+//            Spacer()
+//            Button(action: {
+//                submit(answer)
+//            }, label: {
+//                Text("Send")
+//            })
+//            .disabled(answer.isEmpty)
+//            .font(Font.system(.largeTitle))
+//        }
     }
     
     func submit(_ result: String) {
