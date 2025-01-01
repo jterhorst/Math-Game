@@ -32,7 +32,7 @@ struct CardAnswerText: View {
     var body: some View {
         Text(text)
             .font(Font.system(size: 84))
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.secondary)
             .multilineTextAlignment(.trailing)
     }
 }
@@ -46,7 +46,7 @@ private struct CardView<ChildView: View, AnswerView: View>: View {
             content
                 .frame(maxWidth: 180)
             Rectangle()
-                .fill(.black)
+                .fill(.primary)
                 .frame(width: 180, height: 5)
             answer
                 .frame(maxWidth: 180, minHeight: 80)
@@ -54,9 +54,10 @@ private struct CardView<ChildView: View, AnswerView: View>: View {
         .padding(30)
         .background {
             RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                .fill(.white)
-                .shadow(radius: 5.0)
+                .fill(.background)
+                .shadow(color: .primary, radius: 5.0)
         }
+        
     }
 }
 
@@ -109,6 +110,16 @@ struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
                         opacity = 0.0
                     })
                 }
+                .onChange(of: question) { _ in
+                    rotation = 0
+                    dropPosition = 0
+                    opacity = 1.0
+                    withAnimation(.linear(duration: 0.4).delay(1), {
+                        rotation = 20.0
+                        dropPosition = UIScreen.main.bounds.size.height / 2
+                        opacity = 0.0
+                    })
+                }
             }
         }
     }
@@ -130,7 +141,6 @@ extension QuestionView where OptionalOldAnswerView == EmptyView {
     @Previewable @State var answer: String = ""
     @FocusState var textFieldFocused: Bool
     QuestionView(question: Question(), answerView: {
-//        CardAnswerText("??")
         TextField("?", text: $answer)
             .focused($textFieldFocused)
             .multilineTextAlignment(.center)
@@ -139,12 +149,6 @@ extension QuestionView where OptionalOldAnswerView == EmptyView {
             .keyboardType(.numberPad)
     }, oldQuestion: Question(), oldAnswerView: {
         CardAnswerText("??")
-//        TextField("?", text: $answer)
-//            .focused($textFieldFocused)
-//            .multilineTextAlignment(.center)
-//            .foregroundStyle(.primary)
-//            .font(Font.system(size: 84))
-//            .keyboardType(.numberPad)
     })
 }
 
@@ -158,6 +162,5 @@ extension QuestionView where OptionalOldAnswerView == EmptyView {
             .foregroundStyle(.primary)
             .font(Font.system(size: 84))
             .keyboardType(.numberPad)
-//        CardAnswerText("??")
     })
 }

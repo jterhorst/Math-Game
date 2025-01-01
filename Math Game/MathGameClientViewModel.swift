@@ -14,6 +14,7 @@ enum EventTypes: String, Codable {
     case question = "question"
     case answer = "answer"
     case heartbeat = "heartbeat"
+    case reset = "reset"
 }
 
 struct Player: Codable {
@@ -29,7 +30,11 @@ struct Event: Codable {
     let question: Question?
 }
 
-final class Question: Codable {
+final class Question: Codable, Equatable, ObservableObject {
+    static func == (lhs: Question, rhs: Question) -> Bool {
+        lhs.lhs == rhs.lhs && lhs.rhs == rhs.rhs
+    }
+    
     let lhs: Int
     let rhs: Int
     let correctAnswer: Int
@@ -55,14 +60,16 @@ class MathGameClientViewModel: ObservableObject {
     var answer: String = ""
     
     private let didDisconnect: (() -> Void)
+    private let didUpdateQuestion: (() -> Void)
     
     private let devMode = false
     
     private var webSocketTask: URLSessionWebSocketTask?
     
-    init(userName: String? = nil, didDisconnect: @escaping (() -> Void)) {
+    init(userName: String? = nil, didDisconnect: @escaping (() -> Void), didUpdateQuestion: @escaping (() -> Void)) {
         self.userName = userName
         self.didDisconnect = didDisconnect
+        self.didUpdateQuestion = didUpdateQuestion
         self.connect()
     }
     
@@ -88,17 +95,16 @@ class MathGameClientViewModel: ObservableObject {
                 switch result {
                 case .failure(let error):
                     print(error.localizedDescription)
-                    self.players = []
-                    self.currentPlayer = nil
-                    self.currentQuestion = nil
                     if self.webSocketTask?.closeCode != nil {
+                        self.players = []
+                        self.currentPlayer = nil
+                        self.currentQuestion = nil
                         self.connect()
                     }
                 case .success(let message):
                     switch message {
                     case .string(let text):
                         print("message: \(text)")
-//                        self.messages.append(text)
                         if let data = text.data(using: .utf8) {
                             guard let event = try? JSONDecoder().decode(Event.self, from: data) else {
                                 return
@@ -107,7 +113,10 @@ class MathGameClientViewModel: ObservableObject {
                             self.currentPlayer = self.players.first(where: { $0.name == self.userName })
                             switch event.type {
                             case .question:
-                                self.currentQuestion = event.question
+                                if self.currentQuestion != event.question {
+                                    self.oldQuestion = self.currentQuestion
+                                    self.currentQuestion = event.question
+                                }
                                 self.focused = true
                             default: break
                             }
@@ -139,6 +148,16 @@ class MathGameClientViewModel: ObservableObject {
             return
         }
         guard let package = try? JSONEncoder().encode(["type": EventTypes.answer.rawValue, "data": message]) else { return }
+        guard let stringResult = String(data: package, encoding: .utf8) else { return }
+        webSocketTask?.send(.string(stringResult)) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func resetGame() {
+        guard let package = try? JSONEncoder().encode(["type": EventTypes.reset.rawValue, "data": ""]) else { return }
         guard let stringResult = String(data: package, encoding: .utf8) else { return }
         webSocketTask?.send(.string(stringResult)) { error in
             if let error = error {

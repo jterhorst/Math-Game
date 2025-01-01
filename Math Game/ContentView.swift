@@ -69,15 +69,17 @@ struct PlayerView: View {
     @ObservedObject private var vm: MathGameClientViewModel
     
     init(username: String, didDisconnect: @escaping (() -> Void)) {
-        self.vm = MathGameClientViewModel(userName: username, didDisconnect: didDisconnect)
+        self.vm = MathGameClientViewModel(userName: username, didDisconnect: didDisconnect, didUpdateQuestion: {
+            
+        })
         self.textFieldFocused = true
         
     }
     
     var body: some View {
-//        VStack {
-//            Text("Score: \(vm.currentPlayer?.score ?? 0)")
-//            Spacer()
+        VStack {
+            Text("Score: \(vm.currentPlayer?.score ?? 0)")
+            Spacer()
             if let question = vm.currentQuestion {
                 QuestionView(question: question, answerView: {
                     TextField("?", text: $answer)
@@ -92,18 +94,20 @@ struct PlayerView: View {
                         .onChange(of: answer) {
                             vm.answer = answer
                         }
+                }, oldQuestion: vm.oldQuestion, oldAnswerView: {
+                    CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
                 })
                 .modifier(Shake(animatableData: CGFloat(attempts)))
             }
-//            Spacer()
-//            Button(action: {
-//                submit(answer)
-//            }, label: {
-//                Text("Send")
-//            })
-//            .disabled(answer.isEmpty)
-//            .font(Font.system(.largeTitle))
-//        }
+            Spacer()
+            Button(action: {
+                submit(answer)
+            }, label: {
+                Text("Send")
+            })
+            .disabled(answer.isEmpty)
+            .font(Font.system(.largeTitle))
+        }
     }
     
     func submit(_ result: String) {
@@ -129,14 +133,19 @@ struct PlayerView: View {
 }
 
 struct HostTVView: View {
-    @ObservedObject private var vm = MathGameClientViewModel(didDisconnect: {})
+    @ObservedObject private var vm = MathGameClientViewModel(didDisconnect: {}, didUpdateQuestion: {})
+    @State private var showingAlert = false
+    
     var body: some View {
         VStack {
             Spacer()
             if let question = vm.currentQuestion {
                 QuestionView(question: question, answerView: {
                     CardAnswerText("??")
+                }, oldQuestion: vm.oldQuestion, oldAnswerView: {
+                    CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
                 })
+                .focusable()
             }
             Spacer()
             HStack {
@@ -148,6 +157,15 @@ struct HostTVView: View {
                     }
                     Spacer()
                 }
+            }
+        }
+        .onExitCommand {
+            showingAlert.toggle()
+        }
+        .alert("New Game?", isPresented: $showingAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("New Game", role: .destructive) {
+                vm.resetGame()
             }
         }
     }
