@@ -159,9 +159,11 @@ struct HostTVView: View {
                 }
             }
         }
+#if os(tvOS)
         .onExitCommand {
             showingAlert.toggle()
         }
+#endif
         .alert("New Game?", isPresented: $showingAlert) {
             Button("Cancel", role: .cancel) { }
             Button("New Game", role: .destructive) {
