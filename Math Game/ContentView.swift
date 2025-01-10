@@ -9,43 +9,50 @@ import SwiftUI
 import SwiftData
 
 struct NameEntryView: View {
-    @FocusState private var textFieldFocused: Bool
+    @FocusState private var nameFieldFocused: Bool
+    @FocusState private var roomCodeFieldFocused: Bool
     @State var userName: String = ""
-    @State var nameEntryComplete: ((String) -> Void)
+    @State var roomCode: String = ""
+    @State var nameEntryComplete: ((String, String) -> Void)
     
-    init(nameEntryComplete: @escaping ((String) -> Void)) {
+    init(nameEntryComplete: @escaping ((String, String) -> Void)) {
         self.nameEntryComplete = nameEntryComplete
-        textFieldFocused = true
+        nameFieldFocused = true
     }
     
     var body: some View {
         VStack {
-            Spacer()
             TextField("Enter your name", text: $userName)
                 .multilineTextAlignment(.center)
                 .font(Font.system(.title))
-                .focused($textFieldFocused)
+                .focused($nameFieldFocused)
                 .onSubmit {
-                    submit(userName)
+                    submit(userName, code: roomCode)
                 }
-            Spacer()
+            TextField("Room code", text: $roomCode)
+                .multilineTextAlignment(.center)
+                .font(Font.system(.title))
+                .focused($roomCodeFieldFocused)
+                .onSubmit {
+                    submit(userName, code: roomCode)
+                }
             Button(action: {
-                submit(userName)
+                submit(userName, code: roomCode)
             }, label: {
                 Text("Send")
             })
-            .disabled(userName.isEmpty)
+            .disabled(userName.isEmpty || roomCode.isEmpty)
             .font(Font.system(.largeTitle))
         }
     }
     
-    func submit(_ result: String) {
-        nameEntryComplete(userName)
+    func submit(_ name: String, code: String) {
+        nameEntryComplete(name, code)
     }
 }
 
 #Preview("Name entry") {
-    NameEntryView(nameEntryComplete: { name in
+    NameEntryView(nameEntryComplete: { name, code in
         
     })
 }
@@ -68,12 +75,9 @@ struct PlayerView: View {
     @FocusState private var textFieldFocused: Bool
     @ObservedObject private var vm: MathGameClientViewModel
     
-    init(username: String, didDisconnect: @escaping (() -> Void)) {
-        self.vm = MathGameClientViewModel(userName: username, didDisconnect: didDisconnect, didUpdateQuestion: {
-            
-        })
+    init(username: String, roomCode: String, didDisconnect: @escaping (() -> Void)) {
+        self.vm = MathGameClientViewModel(userName: username, roomCode: roomCode, didDisconnect: didDisconnect, didUpdateQuestion: {})
         self.textFieldFocused = true
-        
     }
     
     var body: some View {
@@ -96,6 +100,8 @@ struct PlayerView: View {
                         }
                 }, oldQuestion: vm.oldQuestion, oldAnswerView: {
                     CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
+                }, oldAnswerAnnotationView: {
+                    EmptyView()
                 })
                 .modifier(Shake(animatableData: CGFloat(attempts)))
             }
@@ -127,23 +133,31 @@ struct PlayerView: View {
 }
 
 #Preview("Player") {
-    PlayerView(username: "Bob", didDisconnect: {
+    PlayerView(username: "Bob", roomCode: "YEST", didDisconnect: {
         
     })
 }
 
-struct HostTVView: View {
-    @ObservedObject private var vm = MathGameClientViewModel(didDisconnect: {}, didUpdateQuestion: {})
+struct HostTVRoomView: View {
+    @ObservedObject private var vm: MathGameHostViewModel
     @State private var showingAlert = false
+    
+    init(roomCode: String) {
+        vm = MathGameHostViewModel(roomCode: roomCode, didDisconnect: {}, didUpdateQuestion: {})
+    }
     
     var body: some View {
         VStack {
+            Text("Room code: \(vm.roomCode)")
+                .font(.headline)
             Spacer()
             if let question = vm.currentQuestion {
                 QuestionView(question: question, answerView: {
                     CardAnswerText("??")
                 }, oldQuestion: vm.oldQuestion, oldAnswerView: {
                     CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
+                }, oldAnswerAnnotationView: {
+                    EmptyView()
                 })
                 .focusable()
             }
@@ -174,22 +188,49 @@ struct HostTVView: View {
 }
 
 #Preview("Host") {
-    HostTVView()
+    HostTVRoomView(roomCode: "YEST")
+}
+
+struct HostTVLaunchView: View {
+    
+    var body: some View {
+        ProgressView()
+            .progressViewStyle(CircularProgressViewStyle())
+            .scaleEffect(2, anchor: .center)
+    }
+}
+
+#Preview("Host loading") {
+    HostTVLaunchView()
+}
+
+struct HostTVView: View {
+    @ObservedObject var model = MathGameNewRoomViewModel()
+    
+    var body: some View {
+        if let roomCode = model.roomCode {
+            HostTVRoomView(roomCode: roomCode)
+        } else {
+            HostTVLaunchView()
+        }
+    }
 }
 
 struct ContentView: View {
     @State private var userName: String?
+    @State private var roomCode: String?
     var body: some View {
         #if os(tvOS)
         HostTVView()
         #else
-        if let userName {
-            PlayerView(username: userName, didDisconnect: {
+        if let userName, let roomCode {
+            PlayerView(username: userName, roomCode: roomCode, didDisconnect: {
                 self.userName = nil
             })
         } else {
-            NameEntryView(nameEntryComplete: { name in
+            NameEntryView(nameEntryComplete: { name, code  in
                 userName = name
+                roomCode = code
             })
         }
         #endif

@@ -37,44 +37,81 @@ struct CardAnswerText: View {
     }
 }
 
-private struct CardView<ChildView: View, AnswerView: View>: View {
+struct CardSuccessCheckmarkView: View {
+    var body: some View {
+        Image(systemName: "checkmark.circle.fill")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 100, height: 100)
+            .foregroundStyle(.green)
+            .shadow(radius: 4.0)
+    }
+}
+
+#Preview("checkmark") {
+    CardSuccessCheckmarkView()
+}
+
+struct CardFailureView: View {
+    var body: some View {
+        Image(systemName: "x.circle.fill")
+            .resizable()
+            .scaledToFill()
+            .frame(width: 100, height: 100)
+            .foregroundStyle(.red)
+            .shadow(radius: 4.0)
+    }
+}
+
+#Preview("failure") {
+    CardFailureView()
+}
+
+private struct CardView<ChildView: View, AnswerView: View, AnnotationView: View>: View {
     @ViewBuilder var content: ChildView
     @ViewBuilder var answer: AnswerView
+    @ViewBuilder var annotation: AnnotationView
     
     var body: some View {
-        VStack {
-            content
-                .frame(maxWidth: 180)
-            Rectangle()
-                .fill(.primary)
-                .frame(width: 180, height: 5)
-            answer
-                .frame(maxWidth: 180, minHeight: 80)
-        }
-        .padding(30)
-        .background {
-            RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
-                .fill(.background)
-                .shadow(color: .primary, radius: 5.0)
+        ZStack {
+            VStack {
+                content
+                    .frame(maxWidth: 180)
+                Rectangle()
+                    .fill(.primary)
+                    .frame(width: 180, height: 5)
+                answer
+                    .frame(maxWidth: 180, minHeight: 80)
+            }
+            .padding(30)
+            .background {
+                RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
+                    .fill(.background)
+                    .shadow(color: .primary, radius: 5.0)
+            }
+            
+            annotation
         }
         
     }
 }
 
-struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
+struct QuestionView<AnswerView: View, OptionalOldAnswerView: View, OptionalOldAnswerAnnotationView: View>: View {
     var question: Question
     var answerView: AnswerView
     var oldQuestion: Question?
     var oldAnswerView: OptionalOldAnswerView?
+    var oldAnswerAnnotationView: OptionalOldAnswerAnnotationView?
     @State var rotation = 0.0
     @State var dropPosition = 0.0
     @State var opacity = 1.0
     
-    init(question: Question, answerView: () -> AnswerView, oldQuestion: Question? = nil, oldAnswerView: (() -> OptionalOldAnswerView)? = nil, rotation: Double = 0.0, dropPosition: Double = 0.0, opacity: Double = 1.0) {
+    init(question: Question, answerView: () -> AnswerView, oldQuestion: Question? = nil, oldAnswerView: (() -> OptionalOldAnswerView)? = nil, oldAnswerAnnotationView: (() -> OptionalOldAnswerAnnotationView)? = nil, rotation: Double = 0.0, dropPosition: Double = 0.0, opacity: Double = 1.0) {
         self.question = question
         self.answerView = answerView()
         self.oldQuestion = oldQuestion
         self.oldAnswerView = oldAnswerView?()
+        self.oldAnswerAnnotationView = oldAnswerAnnotationView?()
         self.rotation = rotation
         self.dropPosition = dropPosition
         self.opacity = opacity
@@ -92,14 +129,18 @@ struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
                     CardTextLine("\(question.lhs)")
                     CardTextLine("x \(question.rhs)")
                 }
-            }, answer: { answerView })
+            }, answer: { answerView }, annotation: {
+                EmptyView()
+            })
             if let q = oldQuestion {
                 CardView(content: {
                     VStack {
                         CardTextLine("\(q.lhs)")
                         CardTextLine("x \(q.rhs)")
                     }
-                }, answer: { oldAnswerView })
+                }, answer: { oldAnswerView }, annotation: {
+                    oldAnswerAnnotationView
+                })
                 .opacity(opacity)
                 .rotationEffect(Angle(degrees: rotation))
                 .offset(CGSize(width: 0, height: dropPosition))
@@ -125,12 +166,13 @@ struct QuestionView<AnswerView: View, OptionalOldAnswerView: View>: View {
     }
 }
 
-extension QuestionView where OptionalOldAnswerView == EmptyView {
+extension QuestionView where OptionalOldAnswerView == EmptyView, OptionalOldAnswerAnnotationView == EmptyView {
     init(question: Question, answerView: () -> AnswerView, rotation: Double = 0.0, dropPosition: Double = 0.0, opacity: Double = 1.0) {
         self.question = question
         self.answerView = answerView()
         self.oldQuestion = nil
         self.oldAnswerView = nil
+        self.oldAnswerAnnotationView = nil
         self.rotation = rotation
         self.dropPosition = dropPosition
         self.opacity = opacity
@@ -149,6 +191,8 @@ extension QuestionView where OptionalOldAnswerView == EmptyView {
             .keyboardType(.numberPad)
     }, oldQuestion: Question(), oldAnswerView: {
         CardAnswerText("??")
+    }, oldAnswerAnnotationView: {
+        CardSuccessCheckmarkView()
     })
 }
 

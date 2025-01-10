@@ -1,21 +1,20 @@
 //
-//  MathGameClientViewModel.swift
+//  MathGameHostViewModel.swift
 //  Math Game Client
 //
-//  Created by Jason Terhorst on 12/15/24.
+//  Created by Jason Terhorst on 1/7/25.
 //
 
 import Foundation
 import SwiftUI
 
-class MathGameClientViewModel: ObservableObject {
-    let userName: String?
-    let roomCode: String?
+class MathGameHostViewModel: ObservableObject {
+    let deviceName: String = UUID().uuidString
+    let roomCode: String
     @Published var isActive = false
     @Published var currentQuestion: Question?
     @Published var oldQuestion: Question?
     @Published var players: [Player] = []
-    @Published var currentPlayer: Player?
     @FocusState var focused: Bool
     var answer: String = ""
     
@@ -24,8 +23,7 @@ class MathGameClientViewModel: ObservableObject {
     
     private var webSocketTask: URLSessionWebSocketTask?
     
-    init(userName: String? = nil, roomCode: String? = nil, didDisconnect: @escaping (() -> Void), didUpdateQuestion: @escaping (() -> Void)) {
-        self.userName = userName
+    init(roomCode: String, didDisconnect: @escaping (() -> Void), didUpdateQuestion: @escaping (() -> Void)) {
         self.roomCode = roomCode
         self.didDisconnect = didDisconnect
         self.didUpdateQuestion = didUpdateQuestion
@@ -33,13 +31,7 @@ class MathGameClientViewModel: ObservableObject {
     }
     
     private func connect() {
-        guard let userName else {
-            return
-        }
-        guard let roomCode else {
-            return
-        }
-        let params = "code=\(roomCode)&username=\(userName)"
+        var params = "code=\(roomCode)&device=\(deviceName)"
         guard let url = URL(string: "\(Config.host)/game?\(params)") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
@@ -55,7 +47,6 @@ class MathGameClientViewModel: ObservableObject {
                     print(error.localizedDescription)
                     if self.webSocketTask?.closeCode != nil {
                         self.players = []
-                        self.currentPlayer = nil
                         self.currentQuestion = nil
                         self.connect()
                     }
@@ -68,7 +59,6 @@ class MathGameClientViewModel: ObservableObject {
                                 return
                             }
                             self.players = event.players ?? []
-                            self.currentPlayer = self.players.first(where: { $0.name == self.userName })
                             switch event.type {
                             case .question:
                                 if self.currentQuestion != event.question {

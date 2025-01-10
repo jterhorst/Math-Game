@@ -14,8 +14,8 @@
             filePath = "Math Game/MathGameClientViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
             landmarkName = "receiveMessage()"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "Math Game/MathGameClientViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "112"
-            endingLineNumber = "112"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
             landmarkName = "receiveMessage()"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "Math Game/MathGameClientViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "117"
-            endingLineNumber = "117"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
             landmarkName = "receiveMessage()"
             landmarkType = "7">
          </BreakpointContent>
