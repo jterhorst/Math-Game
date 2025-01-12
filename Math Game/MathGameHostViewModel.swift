@@ -21,72 +21,19 @@ class MathGameHostViewModel: ObservableObject {
     private let didDisconnect: (() -> Void)
     private let didUpdateQuestion: (() -> Void)
     
-    private var webSocketTask: URLSessionWebSocketTask?
+    private var connection: MathGameDataProvidable?
     
-    init(roomCode: String, didDisconnect: @escaping (() -> Void), didUpdateQuestion: @escaping (() -> Void)) {
+    init(roomCode: String, didDisconnect: @escaping (() -> Void), didUpdateQuestion: @escaping (() -> Void), connection: MathGameDataProvidable? = nil) {
         self.roomCode = roomCode
         self.didDisconnect = didDisconnect
         self.didUpdateQuestion = didUpdateQuestion
+        self.connection = connection != nil ? connection : MathGameDataConnectionManager(userName: deviceName, roomCode: roomCode, delegate: self)
+        self.connection?.delegate = self
         self.connect()
     }
     
     private func connect() {
-        var params = "code=\(roomCode)&device=\(deviceName)"
-        guard let url = URL(string: "\(Config.host)/game?\(params)") else { return }
-        let request = URLRequest(url: url)
-        webSocketTask = URLSession.shared.webSocketTask(with: request)
-        webSocketTask?.resume()
-        receiveMessage()
-    }
-    
-    private func receiveMessage() {
-        webSocketTask?.receive { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .failure(let error):
-                    print(error.localizedDescription)
-                    if self.webSocketTask?.closeCode != nil {
-                        self.players = []
-                        self.currentQuestion = nil
-                        self.connect()
-                    }
-                case .success(let message):
-                    switch message {
-                    case .string(let text):
-                        print("message: \(text)")
-                        if let data = text.data(using: .utf8) {
-                            guard let event = try? JSONDecoder().decode(Event.self, from: data) else {
-                                return
-                            }
-                            self.players = event.players ?? []
-                            switch event.type {
-                            case .question:
-                                if self.currentQuestion != event.question {
-                                    self.oldQuestion = self.currentQuestion
-                                    self.currentQuestion = event.question
-                                }
-                                self.focused = true
-                            default: break
-                            }
-                        }
-                        self.isActive = true
-                        self.receiveMessage()
-                    case .data(_):
-                        // Handle binary data
-                        break
-                    @unknown default:
-                        break
-                    }
-                }
-            }
-            if self.webSocketTask?.progress.isCancelled == false {
-                
-            } else {
-                self.isActive = false
-                self.players = []
-                self.didDisconnect()
-            }
-        }
+        self.connection?.connect()
     }
     
     func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
@@ -95,22 +42,38 @@ class MathGameHostViewModel: ObservableObject {
             incorrectAnswer()
             return
         }
-        guard let package = try? JSONEncoder().encode(["type": EventTypes.answer.rawValue, "data": message]) else { return }
-        guard let stringResult = String(data: package, encoding: .utf8) else { return }
-        webSocketTask?.send(.string(stringResult)) { error in
-            if let error = error {
-                print(error.localizedDescription)
-            }
-        }
+        self.connection?.sendMessage(message, incorrectAnswer: incorrectAnswer)
     }
     
     func resetGame() {
-        guard let package = try? JSONEncoder().encode(["type": EventTypes.reset.rawValue, "data": ""]) else { return }
-        guard let stringResult = String(data: package, encoding: .utf8) else { return }
-        webSocketTask?.send(.string(stringResult)) { error in
-            if let error = error {
-                print(error.localizedDescription)
+        self.connection?.resetGame()
+    }
+}
+
+extension MathGameHostViewModel: MathGameDataProvidableDelegate {
+    func receivedEvent(_ event: Event) {
+        self.isActive = true
+        self.players = event.players ?? []
+        switch event.type {
+        case .question:
+            if self.currentQuestion != event.question {
+                self.oldQuestion = self.currentQuestion
+                self.currentQuestion = event.question
             }
+            self.focused = true
+        default: break
         }
+    }
+    
+    func receivedError(_ error: any Error) {
+        print(error.localizedDescription)
+    }
+    
+    func closedConnection() {
+        self.isActive = false
+        self.didDisconnect()
+        self.players = []
+        self.currentQuestion = nil
+        self.connect()
     }
 }
