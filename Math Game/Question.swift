@@ -17,11 +17,12 @@ final class Question: Codable, Equatable, ObservableObject {
     let correctAnswer: Int
 
     init() {
-        let lhs = Int.random(in: 1...10)
-        let rhs = Int.random(in: 1...10)
+        let lhs = Int.random(in: 1...11)
+        let rhs = Int.random(in: 1...4)
+        let flipped = Int.random(in: 0...100) % 2 == 0
         let correctAnswer = lhs * rhs
-        self.lhs = lhs
-        self.rhs = rhs
+        self.lhs = flipped ? lhs : rhs
+        self.rhs = flipped ? rhs : lhs
         self.correctAnswer = correctAnswer
     }
 }
