@@ -19,8 +19,14 @@ struct ContentView: View {
             PlayerView(username: userName, roomCode: roomCode, didDisconnect: {
                 self.userName = nil
             })
+        } else if let roomCode {
+            NameEntryView(roomLoaded: true, roomCode: roomCode, nameEntryComplete: { name, code in
+                userName = name
+            })
         } else {
-            NameEntryView(nameEntryComplete: { name, code  in
+            NameEntryView(roomLoadComplete: { code in
+                roomCode = code
+            }, nameEntryComplete: { name, code  in
                 userName = name
                 roomCode = code
             })
