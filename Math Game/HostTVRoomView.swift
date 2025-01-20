@@ -15,20 +15,29 @@ struct HostTVRoomView: View {
         vm = MathGameHostViewModel(roomCode: roomCode, didDisconnect: {}, didUpdateQuestion: {}, connection: connection)
     }
     
+    private func questionView(player: Player, question: Question) -> some View {
+        QuestionView(question: question, answerView: {
+            CardAnswerText("??")
+        }, oldQuestion: vm.oldBattle?.questions[player], oldAnswerView: {
+            CardAnswerText("\(vm.oldBattle?.questions[player]?.correctAnswer ?? 0)")
+        }, oldAnswerAnnotationView: {
+            EmptyView()
+        })
+        .focusable()
+    }
+    
     var body: some View {
         VStack {
             Text("Room code: \(vm.roomCode)")
                 .font(.headline)
             Spacer()
-            if let question = vm.currentQuestion {
-                QuestionView(question: question, answerView: {
-                    CardAnswerText("??")
-                }, oldQuestion: vm.oldQuestion, oldAnswerView: {
-                    CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
-                }, oldAnswerAnnotationView: {
-                    EmptyView()
-                })
-                .focusable()
+            if let battle = vm.activeBattle {
+                let players = battle.questions.keys.shuffled()
+                ForEach(players, id: \.name) { player in
+                    if let question = battle.questions[player] {
+                        questionView(player: player, question: question)
+                    }
+                }
             }
             Spacer()
             HStack {

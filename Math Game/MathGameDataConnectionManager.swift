@@ -24,7 +24,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
     let userName: String
     let roomCode: String
     var delegate: (any MathGameDataProvidableDelegate)?
-    var question = Question()
+    lazy var battle = Battle(questions: [Player(name: "Jeff", score: 2): Question(), Player(name: userName, score: 5): Question()], mode: .speedTrial)
     
     init(userName: String, roomCode: String, delegate: (any MathGameDataProvidableDelegate)? = nil) {
         self.userName = userName
@@ -37,9 +37,13 @@ class MockDataConnectionManager: MathGameDataProvidable {
     }
     
     func connect() {
-        delegate?.receivedEvent(Event(type: .join, data: userName, playerName: userName, players: players, question: question))
-        self.delegate?.receivedEvent(Event(type: .question, data: "\(self.question.lhs) * \(question.rhs)", playerName: self.userName, players: players, question: self.question))
+        delegate?.receivedEvent(Event(type: .join, data: userName, playerName: userName, players: players, activeBattle: battle))
+        self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle))
         simulateOtherPlayerAnswer()
+    }
+    
+    private func updateQuestions() {
+        battle = Battle(questions: [Player(name: "Jeff", score: 2): Question(), Player(name: userName, score: 5): Question()], mode: .speedTrial)
     }
     
     private func simulateOtherPlayerAnswer() {
@@ -47,21 +51,22 @@ class MockDataConnectionManager: MathGameDataProvidable {
             guard let self = self else {
                 return
             }
-            delegate?.receivedEvent(Event(type: .answer, data: "\(self.question.correctAnswer)", playerName: "Jeff", players: players, question: question))
-            self.question = Question()
-            self.delegate?.receivedEvent(Event(type: .question, data: "\(self.question.lhs) * \(question.rhs)", playerName: self.userName, players: players, question: self.question))
+            guard let player = players.first(where: {$0.name == self.userName}) else { return }
+            delegate?.receivedEvent(Event(type: .answer, data: Battle.dataString(self.battle), playerName: "Jeff", players: players, activeBattle: battle))
+            updateQuestions()
+            self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle))
         }
     }
     
     func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
-        delegate?.receivedEvent(Event(type: .answer, data: message, playerName: userName, players: players, question: question))
-        question = Question()
-        delegate?.receivedEvent(Event(type: .question, data: "\(question.lhs) * \(question.rhs)", playerName: userName, players: players, question: question))
+        delegate?.receivedEvent(Event(type: .answer, data: message, playerName: userName, players: players, activeBattle: battle))
+        updateQuestions()
+        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle))
     }
     
     func resetGame() {
-        question = Question()
-        delegate?.receivedEvent(Event(type: .question, data: "\(question.lhs) * \(question.rhs)", playerName: userName, players: players, question: question))
+        updateQuestions()
+        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle))
     }
 }
 

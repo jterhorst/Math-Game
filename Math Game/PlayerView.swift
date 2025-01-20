@@ -30,11 +30,22 @@ struct PlayerView: View {
         self.textFieldFocused = true
     }
     
+    private func questionView(player: Player, question: Question) -> some View {
+        QuestionView(question: question, answerView: {
+            CardAnswerText("??")
+        }, oldQuestion: vm.oldBattle?.questions[player], oldAnswerView: {
+            CardAnswerText("\(vm.oldBattle?.questions[player]?.correctAnswer ?? 0)")
+        }, oldAnswerAnnotationView: {
+            EmptyView()
+        })
+        .focusable()
+    }
+    
     var body: some View {
         VStack {
             Text("Score: \(vm.currentPlayer?.score ?? 0)")
             Spacer()
-            if let question = vm.currentQuestion {
+            if let battle = vm.activeBattle, let player = vm.currentPlayer, let question = battle.questions[player] {
                 QuestionView(question: question, answerView: {
                     TextField("?", text: $answer)
                         .focused($textFieldFocused)
@@ -48,8 +59,8 @@ struct PlayerView: View {
                         .onChange(of: answer) {
                             vm.answer = answer
                         }
-                }, oldQuestion: vm.oldQuestion, oldAnswerView: {
-                    CardAnswerText("\(vm.oldQuestion?.correctAnswer ?? 0)")
+                }, oldQuestion: vm.oldBattle?.questions[player], oldAnswerView: {
+                    CardAnswerText("\(vm.oldBattle?.questions[player]?.correctAnswer ?? 0)")
                 }, oldAnswerAnnotationView: {
                     EmptyView()
                 })
@@ -75,7 +86,8 @@ struct PlayerView: View {
                 textFieldFocused = true
             }
         })
-        if Int(result) == vm.currentQuestion?.correctAnswer {
+        guard let player = vm.currentPlayer else { return }
+        if Int(result) == vm.activeBattle?.questions[player]?.correctAnswer {
             answer = ""
             textFieldFocused = true
         }

@@ -12,7 +12,7 @@ enum PlayerType: Codable {
     case student
 }
 
-struct Player: Codable {
+struct Player: Codable, Hashable {
     let name: String
     var score: Int
     var type: PlayerType = .student

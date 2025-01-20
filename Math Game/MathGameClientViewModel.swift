@@ -12,8 +12,8 @@ class MathGameClientViewModel: ObservableObject {
     let userName: String?
     let roomCode: String?
     @Published var isActive = false
-    @Published var currentQuestion: Question?
-    @Published var oldQuestion: Question?
+    @Published var activeBattle: Battle?
+    @Published var oldBattle: Battle?
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
     @FocusState var focused: Bool
@@ -40,7 +40,9 @@ class MathGameClientViewModel: ObservableObject {
     
     func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
         guard let result = Int(message) else { return }
-        guard result == self.currentQuestion?.correctAnswer else {
+        guard let currentPlayer else { return }
+        guard let question = self.activeBattle?.questions[currentPlayer] else { return }
+        guard result == question.correctAnswer else {
             incorrectAnswer()
             return
         }
@@ -58,10 +60,10 @@ extension MathGameClientViewModel: MathGameDataProvidableDelegate {
         self.players = event.players ?? []
         self.currentPlayer = self.players.first(where: { $0.name == self.userName })
         switch event.type {
-        case .question:
-            if self.currentQuestion != event.question {
-                self.oldQuestion = self.currentQuestion
-                self.currentQuestion = event.question
+        case .battle:
+            if self.activeBattle != event.activeBattle {
+                self.oldBattle = self.activeBattle
+                self.activeBattle = event.activeBattle
             }
             self.focused = true
         default: break
@@ -77,7 +79,7 @@ extension MathGameClientViewModel: MathGameDataProvidableDelegate {
         self.didDisconnect()
         self.players = []
         self.currentPlayer = nil
-        self.currentQuestion = nil
+        self.activeBattle = nil
         self.connect()
     }
 }
