@@ -27,7 +27,7 @@ class MathGameHostViewModel: ObservableObject {
         self.roomCode = roomCode
         self.didDisconnect = didDisconnect
         self.didUpdateQuestion = didUpdateQuestion
-        self.connection = connection != nil ? connection : MathGameDataConnectionManager(userName: deviceName, roomCode: roomCode, delegate: self)
+        self.connection = connection != nil ? connection : MathGameDataConnectionManager(deviceName: deviceName, roomCode: roomCode, delegate: self)
         self.connection?.delegate = self
         self.connect()
     }

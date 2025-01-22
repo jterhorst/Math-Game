@@ -71,20 +71,23 @@ class MockDataConnectionManager: MathGameDataProvidable {
 }
 
 class MathGameDataConnectionManager: MathGameDataProvidable {
-    let userName: String
+    let deviceName: String?
+    let userName: String?
     let roomCode: String
     
     private var webSocketTask: URLSessionWebSocketTask? = nil
     var delegate: (any MathGameDataProvidableDelegate)?
     
-    init(userName: String, roomCode: String, delegate: (any MathGameDataProvidableDelegate)? = nil) {
+    init(deviceName: String? = nil, userName: String? = nil, roomCode: String, delegate: (any MathGameDataProvidableDelegate)? = nil) {
+        self.deviceName = deviceName
         self.userName = userName
         self.roomCode = roomCode
         self.delegate = delegate
     }
     
     func connect() {
-        let params = "code=\(roomCode)&username=\(userName)"
+        let clientParam = (deviceName != nil) ? "device=\(deviceName ?? "")" : "user=\(userName ?? "")"
+        let params = "code=\(roomCode)&\(clientParam)"
         guard let url = URL(string: "\(Config.host)/game?\(params)") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
