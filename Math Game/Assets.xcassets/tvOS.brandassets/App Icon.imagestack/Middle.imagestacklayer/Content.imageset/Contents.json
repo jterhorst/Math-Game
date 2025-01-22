@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "math battle icon tvOS 400.heic",
+      "filename" : "math battle icon tvOS 400.jpg",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "math battle icon tvOS 800.heic",
+      "filename" : "math battle icon tvOS 800.jpg",
       "idiom" : "tv",
       "scale" : "2x"
     }
