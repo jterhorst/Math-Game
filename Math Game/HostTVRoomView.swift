@@ -15,7 +15,7 @@ struct HostTVRoomView: View {
         vm = MathGameHostViewModel(roomCode: roomCode, didDisconnect: {}, didUpdateQuestion: {}, connection: connection)
     }
     
-    private func questionView(player: Player, question: Question) -> some View {
+    private func questionView(player: String, question: Question) -> some View {
         QuestionView(question: question, answerView: {
             CardAnswerText("??")
         }, oldQuestion: vm.oldBattle?.questions[player], oldAnswerView: {
@@ -33,7 +33,7 @@ struct HostTVRoomView: View {
             Spacer()
             if let battle = vm.activeBattle {
                 let players = battle.questions.keys.shuffled()
-                ForEach(players, id: \.name) { player in
+                ForEach(players, id: \.self) { player in
                     if let question = battle.questions[player] {
                         questionView(player: player, question: question)
                     }
