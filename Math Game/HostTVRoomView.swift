@@ -15,11 +15,15 @@ struct HostTVRoomView: View {
         vm = MathGameHostViewModel(roomCode: roomCode, didDisconnect: {}, didUpdateQuestion: {}, connection: connection)
     }
     
-    private func questionView(player: String, question: Question) -> some View {
-        QuestionView(question: question, answerView: {
+    private func questionView(player: String?, question: Question) -> some View {
+        var oldQuestion: Question? = vm.oldBattle?.questions.values.first
+        if let player {
+            oldQuestion = vm.oldBattle?.questions[player]
+        }
+        return QuestionView(question: question, answerView: {
             CardAnswerText("??")
-        }, oldQuestion: vm.oldBattle?.questions[player], oldAnswerView: {
-            CardAnswerText("\(vm.oldBattle?.questions[player]?.correctAnswer ?? 0)")
+        }, oldQuestion: oldQuestion, oldAnswerView: {
+            CardAnswerText("\(oldQuestion?.correctAnswer ?? 0)")
         }, oldAnswerAnnotationView: {
             EmptyView()
         })
@@ -30,12 +34,25 @@ struct HostTVRoomView: View {
         VStack {
             Text("Room code: \(vm.roomCode)")
                 .font(.headline)
+                .foregroundStyle(Color.accent)
             Spacer()
-            if let battle = vm.activeBattle {
-                let players = battle.questions.keys.shuffled()
-                ForEach(players, id: \.self) { player in
-                    if let question = battle.questions[player] {
-                        questionView(player: player, question: question)
+            HStack {
+                if let battle = vm.activeBattle {
+                    if battle.mode == .shared {
+                        if let question = battle.questions.values.first {
+                            Spacer()
+                            questionView(player: nil, question: question)
+                            Spacer()
+                        }
+                    } else {
+                        let players = battle.questions.keys.shuffled()
+                        ForEach(players, id: \.self) { player in
+                            if let question = battle.questions[player] {
+                                Spacer()
+                                questionView(player: player, question: question)
+                                Spacer()
+                            }
+                        }
                     }
                 }
             }
@@ -65,6 +82,10 @@ struct HostTVRoomView: View {
     }
 }
 
-#Preview("Host") {
-    HostTVRoomView(roomCode: "YEST", connection: MockDataConnectionManager(userName: "Bob", roomCode: "YEST"))
+#Preview("Host - Individual questions") {
+    HostTVRoomView(roomCode: "YEST", connection: MockDataConnectionManager(userName: "Bob", roomCode: "YEST", mode: .speedTrial))
+}
+
+#Preview("Host - Shared") {
+    HostTVRoomView(roomCode: "YEST", connection: MockDataConnectionManager(userName: "Bob", roomCode: "YEST", mode: .shared))
 }

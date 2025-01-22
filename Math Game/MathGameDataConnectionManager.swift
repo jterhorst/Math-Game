@@ -23,12 +23,14 @@ protocol MathGameDataProvidable {
 class MockDataConnectionManager: MathGameDataProvidable {
     let userName: String
     let roomCode: String
+    let battleMode: BattleMode
     var delegate: (any MathGameDataProvidableDelegate)?
-    lazy var battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: .speedTrial)
+    lazy var battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: battleMode)
     
-    init(userName: String, roomCode: String, delegate: (any MathGameDataProvidableDelegate)? = nil) {
+    init(userName: String, roomCode: String, mode: BattleMode = .shared, delegate: (any MathGameDataProvidableDelegate)? = nil) {
         self.userName = userName
         self.roomCode = roomCode
+        self.battleMode = mode
         self.delegate = delegate
     }
     
@@ -43,7 +45,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
     }
     
     private func updateQuestions() {
-        battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: .speedTrial)
+        battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: battleMode)
     }
     
     private func simulateOtherPlayerAnswer() {
