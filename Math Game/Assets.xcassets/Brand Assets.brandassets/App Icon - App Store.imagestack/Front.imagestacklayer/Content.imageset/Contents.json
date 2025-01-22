@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "math battle icon tvOS 1280.heic",
+      "idiom" : "tv"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
