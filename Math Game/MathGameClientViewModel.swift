@@ -41,7 +41,7 @@ class MathGameClientViewModel: ObservableObject {
     func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
         guard let result = Int(message) else { return }
         guard let currentPlayer else { return }
-        guard let question = self.activeBattle?.questions[currentPlayer] else { return }
+        guard let question = self.activeBattle?.questions[currentPlayer.name] else { return }
         guard result == question.correctAnswer else {
             incorrectAnswer()
             return

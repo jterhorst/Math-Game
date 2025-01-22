@@ -24,7 +24,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
     let userName: String
     let roomCode: String
     var delegate: (any MathGameDataProvidableDelegate)?
-    lazy var battle = Battle(questions: [Player(name: "Jeff", score: 2): Question(), Player(name: userName, score: 5): Question()], mode: .speedTrial)
+    lazy var battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: .speedTrial)
     
     init(userName: String, roomCode: String, delegate: (any MathGameDataProvidableDelegate)? = nil) {
         self.userName = userName
@@ -43,7 +43,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
     }
     
     private func updateQuestions() {
-        battle = Battle(questions: [Player(name: "Jeff", score: 2): Question(), Player(name: userName, score: 5): Question()], mode: .speedTrial)
+        battle = Battle(questions: ["Jeff": Question(), userName: Question()], mode: .speedTrial)
     }
     
     private func simulateOtherPlayerAnswer() {
