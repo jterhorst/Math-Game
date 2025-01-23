@@ -19,6 +19,24 @@ private struct Shake: GeometryEffect {
     }
 }
 
+struct DeviceLayoutContainerView<ChildView: View>: View {
+    @ViewBuilder var content: ChildView
+    
+    var body: some View {
+        GeometryReader { reader in
+            if reader.size.height > reader.size.width {
+                VStack {
+                    content
+                }
+            } else {
+                HStack {
+                    content
+                }
+            }
+        }
+    }
+}
+
 struct PlayerView: View {
     @State private var answer: String = ""
     @State private var attempts: Int = 0
@@ -48,25 +66,58 @@ struct PlayerView: View {
                 .font(.largeTitle)
             Spacer()
             if let battle = vm.activeBattle, let player = vm.currentPlayer, let question = battle.questions[player.name] {
-                QuestionView(question: question, answerView: {
-                    TextField("?", text: $answer)
-                        .focused($textFieldFocused)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.primary)
-                        .font(Font.system(size: 84))
-                        .keyboardType(.numberPad)
-                        .onSubmit {
-                            submit(answer)
+                DeviceLayoutContainerView {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        QuestionView(question: question, answerView: {
+                            TextField("?", text: $answer)
+                                .focused($textFieldFocused)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.primary)
+                                .font(Font.system(size: 84))
+                                .keyboardType(.numberPad)
+                                .onSubmit {
+                                    submit(answer)
+                                }
+                                .onChange(of: answer) {
+                                    vm.answer = answer
+                                }
+                        }, oldQuestion: vm.oldBattle?.questions[player.name], oldAnswerView: {
+                            CardAnswerText("\(vm.oldBattle?.questions[player.name]?.correctAnswer ?? 0)")
+                        }, oldAnswerAnnotationView: {
+                            EmptyView()
+                        })
+                        .modifier(Shake(animatableData: CGFloat(attempts)))
+                        Spacer()
+                    }
+                    Spacer()
+                    if vm.showHint {
+                        HStack {
+                            Spacer()
+                            HintView(lhs: question.lhs, rhs: question.rhs)
+                            Spacer()
+                            Button(action: {
+                                vm.showHint.toggle()
+                            }, label: {
+                                Text("Hide hint")
+                            })
+                            Spacer()
                         }
-                        .onChange(of: answer) {
-                            vm.answer = answer
+                        Spacer()
+                    } else {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                vm.showHint.toggle()
+                            }, label: {
+                                Text("Show hint?")
+                            })
+                            Spacer()
                         }
-                }, oldQuestion: vm.oldBattle?.questions[player.name], oldAnswerView: {
-                    CardAnswerText("\(vm.oldBattle?.questions[player.name]?.correctAnswer ?? 0)")
-                }, oldAnswerAnnotationView: {
-                    EmptyView()
-                })
-                .modifier(Shake(animatableData: CGFloat(attempts)))
+                        Spacer()
+                    }
+                }
             }
             Spacer()
             Button(action: {
@@ -100,4 +151,28 @@ struct PlayerView: View {
     PlayerView(username: "Bob", roomCode: "YEST", didDisconnect: {
         
     }, connection: MockDataConnectionManager(userName: "Bob", roomCode: "YEST"))
+}
+
+struct HintView: View {
+    var lhs: Int
+    var rhs: Int
+    
+    var body: some View {
+        let rows = rhs
+        let columns = lhs
+        VStack {
+            ForEach(0..<rows, id: \.self) { _ in
+                HStack {
+                    ForEach(0..<columns, id: \.self) { _ in
+                        Text("O")
+                            .font(.title)
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview("Hint") {
+    HintView(lhs: 5, rhs: 3)
 }

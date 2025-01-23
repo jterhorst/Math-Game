@@ -17,6 +17,7 @@ class MathGameClientViewModel: ObservableObject {
     @Published var oldBattle: Battle?
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
+    @Published var showHint: Bool = false
     @FocusState var focused: Bool
     var answer: String = ""
     
