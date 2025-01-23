@@ -13,6 +13,7 @@ class MathGameClientViewModel: ObservableObject {
     let roomCode: String?
     @Published var isActive = false
     @Published var activeBattle: Battle?
+    @Published var timeRemaining: Int = Config.maxTime
     @Published var oldBattle: Battle?
     @Published var players: [Player] = []
     @Published var currentPlayer: Player?
@@ -58,6 +59,7 @@ extension MathGameClientViewModel: MathGameDataProvidableDelegate {
     func receivedEvent(_ event: Event) {
         self.isActive = true
         self.players = event.players ?? []
+        self.timeRemaining = event.activeBattle?.remainingTime ?? 0
         self.currentPlayer = self.players.first(where: { $0.name == self.userName })
         switch event.type {
         case .battle:

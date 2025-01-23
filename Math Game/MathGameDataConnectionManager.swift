@@ -42,6 +42,16 @@ class MockDataConnectionManager: MathGameDataProvidable {
         delegate?.receivedEvent(Event(type: .join, data: userName, playerName: userName, players: players, activeBattle: battle))
         self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle))
         simulateOtherPlayerAnswer()
+        _ = Task { [weak self] in
+            while self?.battle.remainingTime ?? 0 > 0 {
+                try? await Task.sleep(nanoseconds: 1000000000)
+                guard let weakBattle = self?.battle else {
+                    return
+                }
+                self?.battle.remainingTime = (self?.battle.remainingTime ?? 0) - 1
+                self?.delegate?.receivedEvent(Event(type: .timerTick, data: Battle.dataString(weakBattle), playerName: nil, players: self?.players, activeBattle: weakBattle))
+            }
+        }
     }
     
     private func updateQuestions() {

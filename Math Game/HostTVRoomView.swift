@@ -35,6 +35,8 @@ struct HostTVRoomView: View {
             Text("Room code: \(vm.roomCode)")
                 .font(.headline)
                 .foregroundStyle(Color.accent)
+            Text("Time: \(vm.timeRemaining)")
+                .font(.largeTitle)
             Spacer()
             HStack {
                 if let battle = vm.activeBattle {

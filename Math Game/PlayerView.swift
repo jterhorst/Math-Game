@@ -44,6 +44,8 @@ struct PlayerView: View {
     var body: some View {
         VStack {
             Text("Score: \(vm.currentPlayer?.score ?? 0)")
+            Text("Time: \(vm.timeRemaining)")
+                .font(.largeTitle)
             Spacer()
             if let battle = vm.activeBattle, let player = vm.currentPlayer, let question = battle.questions[player.name] {
                 QuestionView(question: question, answerView: {
