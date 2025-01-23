@@ -64,6 +64,15 @@ struct PlayerView: View {
             Text("Score: \(vm.currentPlayer?.score ?? 0)")
             Text("Time: \(vm.timeRemaining)")
                 .font(.largeTitle)
+            if let player = vm.currentPlayer {
+                Text(player.type == .parent ? "Parent mode" : "Student mode")
+                    .foregroundStyle(.white)
+                    .padding(.all, 10.0)
+                    .background {
+                        RoundedRectangle(cornerSize: CGSize(width: 5, height: 5))
+                            .fill(player.type == .parent ? Color.yellow : Color.blue)
+                    }
+            }
             Spacer()
             if let battle = vm.activeBattle, let player = vm.currentPlayer, let question = battle.questions[player.name] {
                 DeviceLayoutContainerView {

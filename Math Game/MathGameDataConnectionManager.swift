@@ -35,7 +35,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
     }
     
     private var players: [Player] {
-        [Player(name: userName, score: 5), Player(name: "Jeff", score: 2)]
+        [Player(name: userName, score: 5, type: .parent), Player(name: "Jeff", score: 2)]
     }
     
     func connect() {
