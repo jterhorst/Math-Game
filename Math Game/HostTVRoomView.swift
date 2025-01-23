@@ -30,9 +30,9 @@ struct HostTVRoomView: View {
         .focusable()
     }
     
-    var body: some View {
+    private var activeBody: some View {
         VStack {
-            Text("Room code: \(vm.roomCode)")
+            Text("Join at mathbattle.tv, enter room code \(vm.roomCode)")
                 .font(.headline)
                 .foregroundStyle(Color.accent)
             Text("Time: \(vm.timeRemaining)")
@@ -68,6 +68,27 @@ struct HostTVRoomView: View {
                     }
                     Spacer()
                 }
+            }
+        }
+    }
+    
+    private var inactiveBody: some View {
+        VStack {
+            
+            Text("Join at mathbattle.tv on your mobile device")
+                .font(.largeTitle)
+            Text("enter room code \(vm.roomCode)")
+                .font(.largeTitle)
+                .foregroundStyle(Color.accent)
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            if vm.players.isEmpty {
+                inactiveBody
+            } else {
+                activeBody
             }
         }
 #if os(tvOS)
