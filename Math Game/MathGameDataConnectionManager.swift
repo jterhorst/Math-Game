@@ -38,9 +38,17 @@ class MockDataConnectionManager: MathGameDataProvidable {
         [Player(name: userName, score: 5, type: .parent), Player(name: "Jeff", score: 2)]
     }
     
+    private var activePlayer: Player? {
+        players.first(where: { $0.name == userName })
+    }
+    
+    private var timeRemaining: Int {
+        return battle.remainingTime - (activePlayer?.type == .parent ? 10 : 0)
+    }
+    
     func connect() {
-        delegate?.receivedEvent(Event(type: .join, data: userName, playerName: userName, players: players, activeBattle: battle))
-        self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle))
+        delegate?.receivedEvent(Event(type: .join, data: userName, playerName: userName, players: players, activeBattle: battle, answerTimeRemaining: battle.remainingTime))
+        self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle, answerTimeRemaining: battle.remainingTime))
         simulateOtherPlayerAnswer()
         _ = Task { [weak self] in
             while self?.battle.remainingTime ?? 0 > 0 {
@@ -49,7 +57,7 @@ class MockDataConnectionManager: MathGameDataProvidable {
                     return
                 }
                 self?.battle.remainingTime = (self?.battle.remainingTime ?? 0) - 1
-                self?.delegate?.receivedEvent(Event(type: .timerTick, data: Battle.dataString(weakBattle), playerName: nil, players: self?.players, activeBattle: weakBattle))
+                self?.delegate?.receivedEvent(Event(type: .timerTick, data: Battle.dataString(weakBattle), playerName: nil, players: self?.players, activeBattle: weakBattle, answerTimeRemaining: weakBattle.remainingTime))
             }
         }
     }
@@ -64,21 +72,21 @@ class MockDataConnectionManager: MathGameDataProvidable {
                 return
             }
             guard let player = players.first(where: {$0.name == self.userName}) else { return }
-            delegate?.receivedEvent(Event(type: .answer, data: Battle.dataString(self.battle), playerName: "Jeff", players: players, activeBattle: battle))
+            delegate?.receivedEvent(Event(type: .answer, data: Battle.dataString(self.battle), playerName: "Jeff", players: players, activeBattle: battle, answerTimeRemaining: timeRemaining))
             updateQuestions()
-            self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle))
+            self.delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: self.userName, players: players, activeBattle: battle, answerTimeRemaining: battle.remainingTime))
         }
     }
     
     func sendMessage(_ message: String, incorrectAnswer: () -> Void) {
-        delegate?.receivedEvent(Event(type: .answer, data: message, playerName: userName, players: players, activeBattle: battle))
+        delegate?.receivedEvent(Event(type: .answer, data: message, playerName: userName, players: players, activeBattle: battle, answerTimeRemaining: timeRemaining))
         updateQuestions()
-        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle))
+        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle, answerTimeRemaining: battle.remainingTime))
     }
     
     func resetGame() {
         updateQuestions()
-        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle))
+        delegate?.receivedEvent(Event(type: .battle, data: Battle.dataString(self.battle), playerName: userName, players: players, activeBattle: battle, answerTimeRemaining: battle.remainingTime))
     }
 }
 
